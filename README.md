@@ -85,8 +85,10 @@ The main goal of litreview is to be completely open source, and completely ***un
 Litreview is incredibly easy to work on, and new extractors can be added trivially, simply by editing `litreview/src/extractor.py`.
 
 I created this tool because I was frustrated with the other tools out there, because it was hard for me to extend their functionality to do what I wanted to do. And when they did support what I wanted,
-the tools were bulky and included a billion other things. No. This is a simply, easy to use tool to help remove the overhead
+the tools were bulky and included a billion other things. No. This is a simple, easy to use tool to help remove the overhead
 associated with reviewing papers, and nothing else.
+
+This tool is self-contained. It does not depend on firefox being installed, or Selenium, etc.
 
 # Contribute
 
