@@ -13,9 +13,9 @@ README = (HERE / "README.md").read_text()
 
 # This call to setup() does all the work
 setup(
-    name="litreview",
-    version="0.0.1",
-    description="Automate creation of Jekyll posts for literature reviews",
+    name="lit-review",
+    version="0.0.2",
+    description="Automate creation of reports and working directories for literature reviews",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/Velythyl/litreview",
