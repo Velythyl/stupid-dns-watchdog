@@ -19,8 +19,19 @@ def eprint2bibtex(eprint_number):
         return main_soup
 
     def dblp():
+        search = soup_from_url(
+            f"https://dblp.uni-trier.de/search?q={eprint_number}"
+        ).select(".publ")
+
+        if len(search) > 1:
+            print("More than one dblp search result, assuming first is the correct one")
+
+        search = search[0]
+        a = search.contents[0].contents[1].contents[0].contents[0]
+        bibtex_link = a.attrs["href"]
+
         bibtex = soup_from_url(
-            f"https://dblp.uni-trier.de/rec/journals/corr/abs-{'-'.join(eprint_number.split('.'))}.html?view=bibtex"
+            bibtex_link
         ).select("#bibtex-section")
 
         if len(bibtex) > 1:
@@ -41,6 +52,8 @@ def eprint2bibtex(eprint_number):
         return dblp()
     except:
         pass
+
+    print("Could not use DBLP to extract bibtex, falling back on arxiv")
 
     try:
         return arxiv()
