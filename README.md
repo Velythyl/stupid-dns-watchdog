@@ -5,8 +5,9 @@ Automates the creation of reports for literature reviews.
 # Install
 
 ```
-pip3 install litreview
+pip3 install lit-review
 ```
+(Don't confound this tool with [this one](https://pypi.org/project/LitReview/).)
 
 # Usage
 
