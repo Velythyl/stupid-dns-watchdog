@@ -10,6 +10,45 @@ from urllib.parse import urlparse
 def rebuild_url(scheme, netloc, path):
     return scheme+"://"+netloc+path
 
+def eprint2bibtex(eprint_number):
+    def soup_from_url(url):
+        main_page = urllib.request.urlopen(url).read()
+        _url = url
+        main_soup = BeautifulSoup(main_page, "html.parser")
+        main_soup.prettify()
+        return main_soup
+
+    def dblp():
+        bibtex = soup_from_url(
+            f"https://dblp.uni-trier.de/rec/journals/corr/abs-{'-'.join(eprint_number.split('.'))}.html?view=bibtex"
+        ).select("#bibtex-section")
+
+        if len(bibtex) > 1:
+            raise NotImplemented("more than one selected")
+
+        bibtex = bibtex[0].getText().strip()
+        return bibtex
+
+    def arxiv():
+        bibtex = soup_from_url(
+            f"https://arxiv2bibtex.org/?q={eprint_number}&format=bibtex"
+        ).select(".wikiinfo")[0]
+
+        bibtex = bibtex.getText().strip()
+        return bibtex
+
+    try:
+        return dblp()
+    except:
+        pass
+
+    try:
+        return arxiv()
+    except:
+        return "TODO (could not extract bibtex)"
+
+
+
 class _Extractor():
     def __init__(self, url):
         self.main_page = urllib.request.urlopen(url).read()
@@ -49,8 +88,7 @@ class Arxiv(_Extractor):
         return rebuild_url(parsedurl.scheme, parsedurl.netloc, newpath)
 
     def bibtex(self):
-        #temp = self.main_soup.select("#bib-cite-target")
-        return "TODO"
+        return eprint2bibtex(urlparse(self.url()).path.split("/")[-1])
 
     def abstract(self):
         selected = self.main_soup.select(".abstract.mathjax")
@@ -59,7 +97,7 @@ class Arxiv(_Extractor):
             raise NotImplemented("more than one selected")
 
         abstract = str(selected[0].contents[2]).strip()
-        return abstract
+        return abstract.strip()
 
     def authors(self):
         selected = self.main_soup.select(".authors")
@@ -89,7 +127,7 @@ class Arxiv(_Extractor):
         if date_text is None:
             raise NotImplemented("oh no no date")
 
-        return matches[0]
+        return matches[0].strip()
 
     def title(self):
         selected = self.main_soup.select(".title.mathjax")
@@ -98,8 +136,8 @@ class Arxiv(_Extractor):
             raise NotImplemented("more than one selected")
 
         title = str(selected[0].contents[1]).strip()
-        return title
+        return title.strip()
 
     def filename(self):
         parsedurl = urlparse(self.url())
-        return parsedurl.path.replace("/abs/", "")
+        return parsedurl.path.replace("/abs/", "").strip()
