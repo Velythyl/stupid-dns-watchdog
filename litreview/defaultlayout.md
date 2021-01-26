@@ -1,15 +1,13 @@
 f"""---
 layout: post
-title: A reading of {title}
+title: {title}
 date: {datetime.date.today().strftime("%Y-%m-%d")}
 categories: {", ".join(categories)}
 ---
 
-## {title}
+### {authors}
 
-###{authors}
-
-Originally published on {date}
+Originally published on {date}.
 
 Categories: {", ".join(categories)}  
 
@@ -25,7 +23,7 @@ Link: [{pdflink}]({pdflink})
 
 ---
 
-# My reading
+### My reading
 
 
 
