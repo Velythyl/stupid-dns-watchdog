@@ -11,4 +11,4 @@ def get_post(title, authors, abstract, pdflink, bibtex, date, categories, args, 
     with open(f"{get_config_dir()}/{format_path}", "r") as f:
         format = f.read()
 
-    return eval(format)
+    return eval(format).strip()
