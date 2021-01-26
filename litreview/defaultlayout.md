@@ -5,14 +5,15 @@ date: {datetime.date.today().strftime("%Y-%m-%d")}
 categories: {", ".join(categories)}
 ---
 
-# {title}
-##{authors}
+## {title}
 
-{date}
+###{authors}
 
-{", ".join(categories)}  
+Originally published on {date}
 
-[{pdflink}]({pdflink})
+Categories: {", ".join(categories)}  
+
+Link: [{pdflink}]({pdflink})
 
 ### Abstract:
 {abstract}
