@@ -1,4 +1,5 @@
 import re
+from functools import cached_property
 
 from bs4 import BeautifulSoup
 import urllib.request
@@ -69,6 +70,7 @@ class _Extractor():
         self.main_soup = BeautifulSoup(self.main_page, "html.parser")
         self.main_soup.prettify()
 
+    @cached_property
     def url(self):
         return self._url
 
@@ -90,19 +92,23 @@ class _Extractor():
     def date(self):
         raise NotImplemented()
 
+    @cached_property
     def filename(self):
-        return re.sub(r"\W+", "", self.title())
+        return re.sub(r"\W+", "", self.title)
 
 class Arxiv(_Extractor):
+    @cached_property
     def pdflink(self):
-        parsedurl = urlparse(self.url())
+        parsedurl = urlparse(self.url)
 
         newpath = parsedurl.path.replace("/abs", "/pdf")+".pdf"
         return rebuild_url(parsedurl.scheme, parsedurl.netloc, newpath)
 
+    @cached_property
     def bibtex(self):
-        return eprint2bibtex(urlparse(self.url()).path.split("/")[-1])
+        return eprint2bibtex(urlparse(self.url).path.split("/")[-1])
 
+    @cached_property
     def abstract(self):
         selected = self.main_soup.select(".abstract.mathjax")
 
@@ -112,6 +118,7 @@ class Arxiv(_Extractor):
         abstract = str(selected[0].contents[2]).strip()
         return abstract.strip()
 
+    @cached_property
     def authors(self):
         selected = self.main_soup.select(".authors")
 
@@ -125,6 +132,7 @@ class Arxiv(_Extractor):
         authors = str(selected[0].get_text()).strip()
         return authors
 
+    @cached_property
     def date(self):
         selected = self.main_soup.select(".dateline")
         if len(selected) > 1:
@@ -142,6 +150,7 @@ class Arxiv(_Extractor):
 
         return matches[0].strip()
 
+    @cached_property
     def title(self):
         selected = self.main_soup.select(".title.mathjax")
 
@@ -151,6 +160,7 @@ class Arxiv(_Extractor):
         title = str(selected[0].contents[1]).strip()
         return title.strip()
 
+    @cached_property
     def filename(self):
-        parsedurl = urlparse(self.url())
+        parsedurl = urlparse(self.url)
         return parsedurl.path.replace("/abs/", "").strip()

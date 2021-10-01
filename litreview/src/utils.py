@@ -7,7 +7,7 @@ import subprocess
 def makedirs(name):
     try:
         os.makedirs(name)
-    except:
+    except FileExistsError:
         pass
     yield None
 

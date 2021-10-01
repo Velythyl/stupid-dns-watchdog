@@ -1,6 +1,7 @@
+import pprint
+
 from litreview.src.argparser import get_args
 from litreview.src.extractor import Arxiv
-from litreview.src.get_post import get_post
 from litreview.src.shell_utils import download_pdf, copy_file, run, get_config_dir
 from litreview.src.utils import makedirs
 
@@ -9,31 +10,37 @@ def doit(args):
 
     data = Arxiv(args.paperurl)
 
-    print(args.postdirname)
 
-    print(data.pdflink())
-    print(data.bibtex())
-    print(data.abstract())
-    print(data.authors())
-    print(data.title())
-    print(data.date())
-    print(args.categories)
 
-    filepath = download_pdf(data.pdflink(), data.filename())
+    print(data.pdflink)
+    print(data.bibtex)
+    print(data.abstract)
+    print(data.authors)
+    print(data.title)
+    print(data.date)
+    pprint.pprint(vars(args))
 
-    pdfpath = f"./{args.pdfdirname}/{data.filename()}"
-    with makedirs(pdfpath):
-        copy_file(filepath, f"{pdfpath}/{data.filename()}.pdf")
-        copy_file(filepath, f"{pdfpath}/{data.filename()}_annotated.pdf")
+    from litreview.src.string_evaluation import get_special_variables
+    args = get_special_variables(data.title, data.authors, data.abstract, data.pdflink, data.bibtex, data.date,
+                     args.categories, args)
+
+    filepath = download_pdf(data.pdflink, data.filename)
+
+   # pdfpath = f"./{args.pdfdirname}/{data.filename()}"
+    with makedirs(args.pdfdirname):
+        copy_file(filepath, f"{args.pdfdirname}/{data.filename}.pdf")
+        if args.duplicatepdf:
+            copy_file(filepath, f"{args.pdfdirname}/{data.filename}_annotated.pdf")
 
     # with makedirs(args.postdirname):
 
-    the_post = get_post(data.title(), data.authors(), data.abstract(), data.pdflink(), data.bibtex(), data.date(),
-                     args.categories, args, data, args.layout)
+    from litreview.src.string_evaluation import get_post
+    the_post = get_post(data.title, data.authors, data.abstract, data.pdflink, data.bibtex, data.date,
+                     args.categories, args, args.layout)
 
     import datetime
     with makedirs(f"./{args.postdirname}"):
-        with open(f"./{args.postdirname}/{datetime.date.today().strftime('%Y-%m-%d')}-{data.filename()}.md", "w") as f:
+        with open(f"./{args.postdirname}/{datetime.date.today().strftime('%Y-%m-%d')}-{data.filename}.md", "w") as f:
             f.write(the_post)
 
 def mkconf(args):

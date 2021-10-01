@@ -44,11 +44,14 @@ def get_args(configfile="config.yaml"):
         else:
             parser.add_argument(argname, type=type)
 
+    # SPECIAL VARIABLES: $title, $firstlname
+
     add_argument("--verbose", type=str2bool, default=True)
     add_argument("--configfile", type=str, default="config.yaml")
     add_argument("--layout", type=str, default="defaultlayout.md")
-    add_argument("--pdfdirname", type=str, default="pdfs")
-    add_argument("--postdirname", type=str, default="_posts")
+    add_argument("--pdfdirname", type=str, default="{title}")
+    add_argument("--postdirname", type=str, default="{title}")
+    add_argument("--duplicatepdf", type=str2bool, default=False)
     add_argument("--archive", type=str, default="arxiv")
     add_argument("--overwriteconf", type=str2bool, default=False)
 
