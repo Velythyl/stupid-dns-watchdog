@@ -23,20 +23,20 @@ def get_host_id():
 
 CONFIG_ROOT = run("echo $HOME")+"/.stupid_dns_watchdog"
 
-def get_config_repo():
+def get_config_repo(repo_name):
     configpath = CONFIG_ROOT
 
     import os
     assert os.path.isdir(configpath)
 
-    if not os.path.isdir(configpath+"/repo"):
+    if not os.path.isdir(configpath+f"/{repo_name}"):
         print("You need to call `sdw init <github url>` first.")
         exit()
 
-    return configpath+"/repo"
+    return configpath+f"/{repo_name}"
 
-def get_latest_cached_ip():
-    repo_path = get_config_repo()
+def get_latest_cached_ip(repo_name):
+    repo_path = get_config_repo(repo_name)
 
     run(f"touch {repo_path}/{get_host_id()}")
     ret = run(f"cat {repo_path}/{get_host_id()}")
@@ -49,25 +49,25 @@ def get_date():
     x = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
     return x
 
-def write_ip(ip):
-    run(f"cd {get_config_repo()} && git pull --force", redirect_stderr=True)
+def write_ip(ip, repo_name):
+    run(f"cd {get_config_repo(repo_name)} && git pull --force", redirect_stderr=True)
 
-    run(f"echo \"{get_date()},{ip}\" >> {get_config_repo()}/{get_host_id()}")
+    run(f"echo \"{get_date()},{ip}\" >> {get_config_repo(repo_name)}/{get_host_id()}")
 
     try:
-        run(f"cd {get_config_repo()} && git add * && git commit -a -m \"SDW {get_date()}\" && git push", redirect_stderr=True)
+        run(f"cd {get_config_repo(repo_name)} && git add * && git commit -a -m \"SDW {get_date()}\" && git push", redirect_stderr=True)
     except:
         run(f"echo \"{get_date()}\" > {CONFIG_ROOT}/MANUAL_RUN.txt")
 
 
-def check():
+def check(repo_name):
     current_ip = get_current_ip()
-    if current_ip == get_latest_cached_ip():
+    if current_ip == get_latest_cached_ip(repo_name):
         print("No changes detected. SDW will exit now.")
         exit(0)
 
     # we need to warn our master on her github
-    write_ip(current_ip)
+    write_ip(current_ip, repo_name)
 
 def mkconf():
     try:
@@ -80,21 +80,22 @@ def main():
 
     import sys
     if sys.argv[1] == "init":
-        run(f"git clone {sys.argv[2]} {CONFIG_ROOT}/repo")
+        repo_name = run(f"basename {sys.argv[2]} .git")
+        run(f"git clone {sys.argv[2]} {CONFIG_ROOT}/{repo_name}", redirect_stderr=True)
 
         from crontab import CronTab
         cron = CronTab(user=True)
-        job = cron.new(command="sdw check", comment=f"SDW on {get_date()}")
+        job = cron.new(command=f"sdw check {repo_name}", comment=f"SDW on {get_date()} for {repo_name}")
         job.hour.every(2)
         cron.write()
 
         print("Successfully inited SDW. If you had already done so on this machine, don't forget to delete the old CRON file.")
 
         print("\n\nRunning initial check now.\n\n")
-        check()
+        check(repo_name)
 
     elif sys.argv[1] == "check":
-        check()
+        check(sys.argv[2])
     else:
         raise NotImplemented()
 
