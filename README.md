@@ -13,5 +13,5 @@ pip3 install stupid-dns-watchdog
 Simply call
 
 ```
-sdw init <github_url> <human-readable_machine_name (not spaces or other bash-incompatible characters)>
+sdw init <github_url> <human-readable_machine_name (no spaces or other bash-incompatible characters)>
 ```
